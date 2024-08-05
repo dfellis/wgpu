@@ -1,5 +1,6 @@
 use std::{
     error, fmt,
+    hash::{Hash, Hasher},
     ops::{Bound, Deref, DerefMut, Range, RangeBounds},
     sync::Arc,
     thread,
@@ -685,6 +686,20 @@ impl Drop for Buffer {
     }
 }
 
+impl Hash for Buffer {
+    fn hash<H: Hasher>(&self, state: &mut H) {
+        self.id.hash(state);
+    }
+}
+
+impl PartialEq for Buffer {
+    fn eq(&self, other: &Self) -> bool {
+        self.id == other.id
+    }
+}
+
+impl Eq for Buffer {}
+
 fn range_to_offset_size<S: RangeBounds<BufferAddress>>(
     bounds: S,
 ) -> (BufferAddress, Option<BufferSize>) {
@@ -726,5 +741,11 @@ mod tests {
     #[should_panic]
     fn range_to_offset_size_panics_for_unbounded_empty_range() {
         range_to_offset_size(..0);
+    }
+
+    #[test]
+    fn buffer_eq_and_hash() {
+       // How do I even create a buffer for a test?
+       assert_eq!(0, 0); // TODO: Actually do some testing of the equality and hashing traits
     }
 }
